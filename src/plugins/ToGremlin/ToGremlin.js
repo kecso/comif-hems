@@ -76,6 +76,15 @@ define([
             parameters = {},
             gremlin = '';
 
+        function collectBases(node){
+            var bases = [];
+            for(metaNode in self.META){
+                if(self.core.isTypeOf(node,self.META[metaNode])){
+                    bases.push(metaNode);
+                }
+            }
+            return bases;
+        }
 
         nodeObject = self.activeNode;
 
@@ -197,6 +206,7 @@ define([
 
                 // parameters.values = values;
                 // gremlin += ejs.render(nodeTemplate, parameters);
+                parameters.bases = collectBases(nodes[i]);
                 nodes[parameters.path] = JSON.parse(JSON.stringify(parameters));
             }
             gremlin += ejs.render(valueTemplate, {values: values});
