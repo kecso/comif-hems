@@ -1,0 +1,101 @@
+{
+  "components": {
+    "plugins": {
+      "ToFormula": {
+        "src": "src/plugins/ToFormula",
+        "test": "test/plugins/ToFormula"
+      },
+      "ToGremlin": {
+        "src": "src/plugins/ToGremlin",
+        "test": "test/plugins/ToGremlin"
+      }
+    },
+    "addons": {},
+    "seeds": {},
+    "layouts": {},
+    "decorators": {},
+    "routers": {},
+    "visualizers": {}
+  },
+  "dependencies": {
+    "plugins": {
+      "ArchitectureSpecGenerator": {
+        "project": "webgme-bip",
+        "path": "node_modules\\webgme-bip\\src\\plugins\\ArchitectureSpecGenerator"
+      },
+      "BehaviorSpecGenerator": {
+        "project": "webgme-bip",
+        "path": "node_modules\\webgme-bip\\src\\plugins\\BehaviorSpecGenerator"
+      },
+      "JavaBIPEngine": {
+        "project": "webgme-bip",
+        "path": "node_modules\\webgme-bip\\src\\plugins\\JavaBIPEngine"
+      }
+    },
+    "addons": {},
+    "seeds": {
+      "BIPv1": {
+        "project": "webgme-bip",
+        "path": "node_modules\\webgme-bip\\src\\seeds\\BIPv1"
+      }
+    },
+    "layouts": {},
+    "decorators": {
+      "BIPComponentTypeDecorator": {
+        "project": "webgme-bip",
+        "path": "node_modules\\webgme-bip\\src\\decorators\\BIPComponentTypeDecorator"
+      },
+      "BIPConnectorEndDecorator": {
+        "project": "webgme-bip",
+        "path": "node_modules\\webgme-bip\\src\\decorators\\BIPConnectorEndDecorator"
+      },
+      "BIPStateDecorator": {
+        "project": "webgme-bip",
+        "path": "node_modules\\webgme-bip\\src\\decorators\\BIPStateDecorator"
+      }
+    },
+    "routers": {},
+    "visualizers": {
+      "BIPCodeEditor": {
+        "src": "panels/BIPCodeEditor/BIPCodeEditorPanel",
+        "title": "BIPCodeEditor",
+        "panel": "src/visualizers/panels/BIPCodeEditor",
+        "secondary": false,
+        "widget": "src/visualizers/widgets/BIPCodeEditor",
+        "project": "webgme-bip"
+      },
+      "ModelEditorDD": {
+        "src": "panels/ModelEditor/ModelEditorPanel",
+        "title": "ModelEditorDD",
+        "panel": "src/visualizers/panels/ModelEditor",
+        "secondary": false,
+        "widget": "src/visualizers/widgets/ModelEditor",
+        "project": "webgme-bip-editors"
+      },
+      "SetEditorDD": {
+        "src": "panels/SetEditor/SetEditorPanel",
+        "title": "SetEditorDD",
+        "panel": "src/visualizers/panels/SetEditor",
+        "secondary": false,
+        "widget": "src/visualizers/widgets/SetEditor",
+        "project": "webgme-bip-editors"
+      },
+      "CrosscutDD": {
+        "src": "panels/Crosscut/CrosscutPanel",
+        "title": "CrosscutDD",
+        "panel": "src/visualizers/panels/Crosscut",
+        "secondary": false,
+        "widget": "src/visualizers/widgets/Crosscut",
+        "project": "webgme-bip-editors"
+      },
+      "BIPExecutionViz": {
+        "src": "panels/BIPExecutionViz/BIPExecutionVizPanel",
+        "title": "BIPExecutionViz",
+        "panel": "src/visualizers/panels/BIPExecutionViz",
+        "secondary": false,
+        "widget": "src/visualizers/widgets/BIPExecutionViz",
+        "project": "webgme-bip-editors"
+      }
+    }
+  }
+}
