@@ -69,6 +69,7 @@ define([
             concept,
             conceptObject,
             nodeObject,
+            nodes = {},
             keys, i, j, k, target, meta, owner,
             p2c = {},
             p2n = {},
@@ -194,14 +195,16 @@ define([
                     }
                 }
 
-                parameters.values = values;
-                gremlin += ejs.render(nodeTemplate, parameters);
+                // parameters.values = values;
+                // gremlin += ejs.render(nodeTemplate, parameters);
+                nodes[parameters.path] = JSON.parse(JSON.stringify(parameters));
             }
-
-
             gremlin += ejs.render(valueTemplate, {values: values});
 
-            gremlin +='\n}\n';
+            gremlin += ejs.render(nodeTemplate, {nodes: nodes, values: values});
+
+            gremlin += QUERIES;
+
             console.log(gremlin);
             self.result.setSuccess(true);
             callback(null, self.result);
