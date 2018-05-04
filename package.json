@@ -23,6 +23,7 @@
     "chai": "^3.0.0"
   },
   "dependencies": {
+    "webgme": "^2.25.0",
     "webgme-bip": "^1.2.0",
     "webgme-bip-editors": "^0.2.0"
   }

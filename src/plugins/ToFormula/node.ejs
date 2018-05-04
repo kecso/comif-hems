@@ -5,9 +5,10 @@ function convertName(name) {
     name = name.replace(/\//g, "_");
     return name;
 }
-var name;
+var name,member;
 
 %>_<%=convertName(path)%> is Node("<%-path%>",<%=convertName(metaType)%>).
+NodeInheritance(<%=convertName(metaType)%>,_<%=convertName(path)%>).
 <%
 for(name in attr){
 %>_<%=convertName(path)%>_attr_<%=convertName(name)%> is Edge("<%-name%>",<%=convertName(attr[name].owner+'_attr_'+name)%>,_<%=convertName(path)%>,<%=attr[name].type%>_<%=attr[name].valueIndex%>).
@@ -16,5 +17,11 @@ for(name in attr){
 for(name in ptr){
 %>_<%=convertName(path)%>_ptr_<%=convertName(name)%> is Edge("<%-name%>",<%=convertName(ptr[name].owner+'_ptr_'+name)%>,_<%=convertName(path)%>,_<%=convertName(ptr[name].target)%>).
 <%
+}
+for(name in set){
+for(member in set[name]){
+%>_<%=convertName(path)%>_set_<%=convertName(name)%>_<%=convertName(member)%> is Edge("<%-name%>_<%-member%>",_<%=convertName(set[name][member]+'_set_'+name)%>,_<%=convertName(member)%>).
+<%
+}
 }
  %>
