@@ -101,8 +101,12 @@ define([
             keys = self.core.getOwnValidPointerNames(self.META[concept]);
             for (i = 0; i < keys.length; i += 1) {
                 //TODO merge all together for better quality
-                conceptObject.ptr[keys[i]] = p2c[self.core.getOwnValidTargetPaths(self.META[concept], keys[i])[0]];
-                if (!conceptObject.ptr[keys[i]]) {
+                target = self.core.getOwnValidTargetPaths(self.META[concept], keys[i]);
+                for (j = 0; j < target.length; j += 1) {
+                    target[j] = p2c[target[j]];
+                }
+                conceptObject.ptr[keys[i]] = target;
+                if (conceptObject.ptr[keys[i]].length === 0) {
                     delete conceptObject.ptr[keys[i]];
                 }
             }
@@ -200,7 +204,7 @@ define([
 
             formula += ejs.render(valueTemplate, {values: values});
 
-            formula +='\n}\n';
+            formula += '\n}\n';
             console.log(formula);
             self.result.setSuccess(true);
             callback(null, self.result);

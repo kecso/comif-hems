@@ -21,28 +21,33 @@ model <%=convertName(name)%> of WebGME
   atLeastOne is Multiplicity(1,"*").
   anyNumber is Multiplicity(0,"*").
 
-  <%
-  for(i=0;i<concepts.length;i+=1){
-      conceptName = concepts[i].name;
-      console.log(conceptName);
-      %><%=convertName(conceptName)%> is MetaNode("<%=convertName(conceptName)%>").
-  <%  for(key in concepts[i].attr){
-        %><%=convertName(conceptName+'_attr_'+key)%> is MetaEdge("<%=convertName(conceptName+'_attr_'+key)%>",<%=convertName(conceptName)%>,<%=concepts[i].attr[key]%>,anyNumber,exactlyOne).
-  <%
-      }
-      for(key in concepts[i].ptr){
-        %><%=convertName(conceptName+'_ptr_'+key)%> is MetaEdge("<%=convertName(key)%>",<%=convertName(conceptName)%>,<%=convertName(concepts[i].ptr[key])%>,anyNumber,exactlyOne).
-  <%
-      }
-      for(key in concepts[i].set){
-        %><%=convertName(conceptName+'_set_'+key+'_md')%> is Multiplicity(<%=concepts[i].set[key].md.min === -1 ? 0 : concepts[i].set[key].md.min%>,<%if(concepts[i].set[key].md.max === -1){%>"*"<%} else {%><%=concepts[i].set[key].md.max%><%}%>).
 <%
-        %><%=convertName(conceptName+'_set_'+key)%> is MetaEdge("<%=convertName(key)%>",<%=convertName(conceptName)%>,<%=convertName(concepts[i].set[key].target)%>,anyNumber,<%=convertName(conceptName+'_set_'+key+'_md')%>).
-  <%
-      }
-      for(j=0;j<concepts[i].bases.length;j+=1){
-        %>NodeInheritance(<%=convertName(concepts[i].bases[j])%>,<%=convertName(conceptName)%>).
-  <%
-      }
-  }
-  %>
+for(i=0;i<concepts.length;i+=1){
+conceptName = concepts[i].name;
+console.log(conceptName);
+%>  <%=convertName(conceptName)%> is MetaNode("<%=convertName(conceptName)%>").
+<%
+for(key in concepts[i].attr){
+%>  <%=convertName(conceptName+'_attr_'+key)%> is MetaEdge("<%=convertName(conceptName+'_attr_'+key)%>",<%=convertName(conceptName)%>,<%=concepts[i].attr[key]%>,anyNumber,exactlyOne).
+<%
+}
+for(key in concepts[i].ptr){
+%>  <%=convertName(conceptName+'_ptr_'+key+'_target')%> is MetaNode("<%=convertName(conceptName+'_ptr_'+key+'_target')%>").
+  <%=convertName(conceptName+'_ptr_'+key)%> is MetaEdge("<%=convertName(key)%>",<%=convertName(conceptName)%>,<%=convertName(conceptName+'_ptr_'+key+'_target')%>,anyNumber,exactlyOne).
+<%
+for(j=0;j<concepts[i].ptr[key].length;j+=1){
+%>  NodeInheritance(<%=convertName(conceptName+'_ptr_'+key+'_target')%>,<%=convertName(concepts[i].ptr[key][j])%>).
+<%
+}
+}
+for(key in concepts[i].set){
+%>  <%=convertName(conceptName+'_set_'+key+'_md')%> is Multiplicity(<%=concepts[i].set[key].md.min === -1 ? 0 : concepts[i].set[key].md.min%>,<%if(concepts[i].set[key].md.max === -1){%>"*"<%} else {%><%=concepts[i].set[key].md.max%><%}%>).
+  <%=convertName(conceptName+'_set_'+key)%> is MetaEdge("<%=convertName(key)%>",<%=convertName(conceptName)%>,<%=convertName(concepts[i].set[key].target)%>,anyNumber,<%=convertName(conceptName+'_set_'+key+'_md')%>).
+<%
+}
+for(j=0;j<concepts[i].bases.length;j+=1){
+%>  NodeInheritance(<%=convertName(concepts[i].bases[j])%>,<%=convertName(conceptName)%>).
+<%
+}
+}
+%>
