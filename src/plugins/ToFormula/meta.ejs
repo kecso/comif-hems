@@ -2,6 +2,7 @@
 function convertName(name) {
     name = name.replace(/ /g, "_");
     name = name.replace(/\./g, "__");
+    name = name.replace(/\//g, "_");
     return name;
 }
 
@@ -45,4 +46,3 @@ model <%=convertName(name)%> of WebGME
       }
   }
   %>
-}

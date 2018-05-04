@@ -13,14 +13,17 @@ define([
     'plugin/PluginBase',
     'ejs',
     'text!./domain.txt',
-    'text!./meta.ejs'
-], function (
-    PluginConfig,
-    pluginMetadata,
-    PluginBase,
-    ejs,
-    DOMAIN,
-    metaTemplate) {
+    'text!./meta.ejs',
+    'text!./node.ejs',
+    'text!./values.ejs'
+], function (PluginConfig,
+             pluginMetadata,
+             PluginBase,
+             ejs,
+             DOMAIN,
+             metaTemplate,
+             nodeTemplate,
+             valueTemplate) {
     'use strict';
 
     pluginMetadata = JSON.parse(pluginMetadata);
@@ -65,67 +68,143 @@ define([
             concept,
             conceptObject,
             nodeObject,
-            keys,i,j,target,meta,
+            keys, i, j, k, target, meta, owner,
             p2c = {},
-            parameters={},
+            p2n = {},
+            parameters = {},
             formula = DOMAIN;
 
 
         nodeObject = self.activeNode;
 
-        for(concept in self.META) {
+        for (concept in self.META) {
             p2c[self.core.getPath(self.META[concept])] = concept;
+            p2n[self.core.getPath(self.META[concept])] = self.META[concept];
         }
 
-        parameters.name = self.core.getAttribute(nodeObject,'name');
-        parameters.concepts=[];
-        for(concept in self.META){
+        parameters.name = self.core.getAttribute(nodeObject, 'name');
+        parameters.concepts = [];
+        for (concept in self.META) {
             conceptObject = {
                 name: concept,
                 attr: {},
-                ptr:{},
-                set:{},
-                bases:[]
+                ptr: {},
+                set: {},
+                bases: []
             };
 
             keys = self.core.getOwnValidAttributeNames(self.META[concept]);
-            for(i=0;i<keys.length;i+=1){
-                conceptObject.attr[keys[i]] = self.core.getAttributeMeta(self.META[concept],keys[i]).type || 'string';
+            for (i = 0; i < keys.length; i += 1) {
+                conceptObject.attr[keys[i]] = self.core.getAttributeMeta(self.META[concept], keys[i]).type || 'string';
             }
 
             keys = self.core.getOwnValidPointerNames(self.META[concept]);
-            for(i=0;i<keys.length;i+=1){
+            for (i = 0; i < keys.length; i += 1) {
                 //TODO merge all together for better quality
-                conceptObject.ptr[keys[i]] = p2c[self.core.getOwnValidTargetPaths(self.META[concept],keys[i])[0]];
-                if(!conceptObject.ptr[keys[i]]){
+                conceptObject.ptr[keys[i]] = p2c[self.core.getOwnValidTargetPaths(self.META[concept], keys[i])[0]];
+                if (!conceptObject.ptr[keys[i]]) {
                     delete conceptObject.ptr[keys[i]];
                 }
             }
 
             keys = self.core.getOwnValidSetNames(self.META[concept]);
-            for(i=0;i<keys.length;i+=1){
-                target = p2c[self.core.getOwnValidTargetPaths(self.META[concept],keys[i])[0]];
-                if(target){
-                    meta = self.core.getPointerMeta(self.META[concept],keys[i]);
-                    for(j in meta){
-                        if(p2c[j] == target){
+            for (i = 0; i < keys.length; i += 1) {
+                target = p2c[self.core.getOwnValidTargetPaths(self.META[concept], keys[i])[0]];
+                if (target) {
+                    meta = self.core.getPointerMeta(self.META[concept], keys[i]);
+                    for (j in meta) {
+                        if (p2c[j] == target) {
                             conceptObject.set[keys[i]] = {
-                                target:target,
-                                md:{min:meta[j].min,max:meta[j].max}
+                                target: target,
+                                md: {min: meta[j].min, max: meta[j].max}
                             }
                         }
                     }
                 }
             }
 
+            keys = self.core.getMixinPaths(self.META[concept]);
+            for (i = 0; i < keys.length; i += 1) {
+                conceptObject.bases.push(p2c[keys[i]])
+            }
+            if (self.core.getBase(self.META[concept])) {
+                conceptObject.bases.push(p2c[self.core.getPath(self.core.getBase(self.META[concept]))]);
+            }
             parameters.concepts.push(conceptObject);
         }
 
-        console.log(parameters);
-        formula+=ejs.render(metaTemplate,parameters);
-        console.log(formula);
-        self.result.setSuccess(true);
-        callback(null, self.result);
+        formula += ejs.render(metaTemplate, parameters);
+        self.core.loadSubTree(nodeObject, function (err, nodes) {
+            var values = {string: [], integer: [], float: [], asset: []};
+            if (err) {
+                self.result.setSuccess(false);
+                callback(err, self.result);
+                return;
+            }
+
+            p2n[self.core.getPath(nodeObject)] = nodeObject;
+            for (i = 0; i < nodes.length; i += 1) {
+                p2n[self.core.getPath(nodes[i])] = nodes[i];
+            }
+
+            for (i = 0; i < nodes.length; i += 1) {
+                parameters = {attr: {}, ptr: {}, set: {}};
+                parameters.path = self.core.getPath(nodes[i]);
+                parameters.metaType = p2c[self.core.getPath(self.core.getMetaType(nodes[i]))];
+                //attr
+                keys = self.core.getValidAttributeNames(nodes[i]);
+                for (j = 0; j < keys.length; j += 1) {
+                    owner = self.core.getAttributeDefinitionOwner(nodes[i], keys[j]);
+                    meta = self.core.getAttributeMeta(owner, keys[j]).type || 'string';
+                    target = '' + self.core.getAttribute(nodes[i], keys[j]);
+                    k = values[meta].indexOf(target);
+                    if (k === -1) {
+                        k = values[meta].length;
+                        values[meta].push(target);
+                    }
+                    parameters.attr[keys[j]] = {
+                        owner: self.core.getAttribute(owner, 'name'),
+                        type: meta,
+                        valueIndex: k
+                    };
+
+
+                }
+                //ptr
+                keys = self.core.getValidPointerNames(nodes[i]);
+                for (j = 0; j < keys.length; j += 1) {
+                    target = p2n[self.core.getPointerPath(nodes[i], keys[j])];
+                    if (target) {
+                        owner = self.core.getPointerDefinitionInfo(nodes[i], keys[j], target);
+                        parameters.ptr[keys[j]] = {
+                            owner: p2c[owner.ownerPath],
+                            target: self.core.getPointerPath(nodes[i], keys[j])
+                        };
+                    }
+                }
+                //set
+                keys = self.core.getValidSetNames(nodes[i]);
+                for (j = 0; j < keys.length; j += 1) {
+                    parameters.set[keys[j]] = {};
+                    target = self.core.getMemberPaths(nodes[i], keys[j]);
+                    for (k = 0; k < target.length; k += 1) {
+                        owner = self.core.getSetDefinitionInfo(nodes[i], keys[j], target[k]);
+                        parameters.set[keys[j]][target[k]] = p2c[owner.ownerPath];
+                    }
+                }
+
+                parameters.values = values;
+                formula += ejs.render(nodeTemplate, parameters);
+            }
+
+
+            formula += ejs.render(valueTemplate, {values: values});
+
+            formula +='\n}\n';
+            console.log(formula);
+            self.result.setSuccess(true);
+            callback(null, self.result);
+        });
     };
 
     return ToFormula;

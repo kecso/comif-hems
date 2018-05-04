@@ -1,0 +1,20 @@
+<%
+function convertName(name) {
+    name = name.replace(/ /g, "_");
+    name = name.replace(/\./g, "__");
+    name = name.replace(/\//g, "_");
+    return name;
+}
+var name;
+
+%>_<%=convertName(path)%> is Node("<%-path%>",<%=convertName(metaType)%>).
+<%
+for(name in attr){
+%>_<%=convertName(path)%>_attr_<%=convertName(name)%> is Edge("<%-name%>",<%=convertName(attr[name].owner+'_attr_'+name)%>,_<%=convertName(path)%>,<%=attr[name].type%>_<%=attr[name].valueIndex%>).
+<%
+}
+for(name in ptr){
+%>_<%=convertName(path)%>_ptr_<%=convertName(name)%> is Edge("<%-name%>",<%=convertName(ptr[name].owner+'_ptr_'+name)%>,_<%=convertName(path)%>,_<%=convertName(ptr[name].target)%>).
+<%
+}
+ %>
