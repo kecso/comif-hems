@@ -26,6 +26,13 @@ define([
              valueTemplate) {
     'use strict';
 
+    function convertName(name) {
+        name = name.replace(/ /g, "_");
+        name = name.replace(/\./g, "__");
+        name = name.replace(/\//g, "_");
+        return name;
+    }
+
     pluginMetadata = JSON.parse(pluginMetadata);
 
     /**
@@ -66,11 +73,13 @@ define([
         // These are all instantiated at this point.
         var self = this,
             concept,
+            artifact,
             conceptObject,
             nodeObject,
             keys, i, j, k, target, meta, owner,
             p2c = {},
             p2n = {},
+            formulaLiveRunTxt = '',
             parameters = {},
             formula = DOMAIN;
 
@@ -138,6 +147,11 @@ define([
         }
 
         formula += ejs.render(metaTemplate, parameters);
+        formulaLiveRunTxt =
+'////! qr ' + convertName(parameters.name) + ` WebGME.conforms
+////! tr 0 WebGME.conforms
+`;
+        formula = formulaLiveRunTxt + formula;
         self.core.loadSubTree(nodeObject, function (err, nodes) {
             var values = {string: [], integer: [], float: [], asset: []};
             if (err) {
@@ -206,8 +220,22 @@ define([
 
             formula += '\n}\n';
             console.log(formula);
-            self.result.setSuccess(true);
-            callback(null, self.result);
+            artifact = self.blobClient.createArtifact('MyArtifact');
+
+            artifact.addFiles({'model.4ml': formula})
+                .then(function (fileMetadataHashes) {
+                    self.result.addArtifact(fileMetadataHashes[0]);
+                    // and/or save the full artifact and link to it (will be a zip file).
+                    return artifact.save();
+                })
+                .then(function (artifactHash) {
+                    self.result.addArtifact(artifactHash);
+                    self.result.setSuccess(true);
+                    callback(null, self.result);
+                })
+                .catch(function (err) {
+                    callback(err);
+                });
         });
     };
 

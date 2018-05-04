@@ -28,12 +28,12 @@ console.log(conceptName);
 %>  <%=convertName(conceptName)%> is MetaNode("<%=convertName(conceptName)%>").
 <%
 for(key in concepts[i].attr){
-%>  <%=convertName(conceptName+'_attr_'+key)%> is MetaEdge("<%=convertName(conceptName+'_attr_'+key)%>",<%=convertName(conceptName)%>,<%=concepts[i].attr[key]%>,anyNumber,exactlyOne).
+%>  <%=convertName(conceptName+'_attr_'+key)%> is MetaEdge("<%=convertName(conceptName+'_attr_'+key)%>",<%=convertName(conceptName)%>,<%=concepts[i].attr[key]%>,anyNumber,atMostOne).
 <%
 }
 for(key in concepts[i].ptr){
 %>  <%=convertName(conceptName+'_ptr_'+key+'_target')%> is MetaNode("<%=convertName(conceptName+'_ptr_'+key+'_target')%>").
-  <%=convertName(conceptName+'_ptr_'+key)%> is MetaEdge("<%=convertName(key)%>",<%=convertName(conceptName)%>,<%=convertName(conceptName+'_ptr_'+key+'_target')%>,anyNumber,exactlyOne).
+  <%=convertName(conceptName+'_ptr_'+key)%> is MetaEdge("<%=convertName(key)%>",<%=convertName(conceptName)%>,<%=convertName(conceptName+'_ptr_'+key+'_target')%>,anyNumber,atMostOne).
 <%
 for(j=0;j<concepts[i].ptr[key].length;j+=1){
 %>  NodeInheritance(<%=convertName(conceptName+'_ptr_'+key+'_target')%>,<%=convertName(concepts[i].ptr[key][j])%>).

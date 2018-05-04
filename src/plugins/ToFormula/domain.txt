@@ -20,10 +20,10 @@ not4a :- n is Node, m is MetaEdge, NodeInstanceOf(m.src,n), count({s|s is Node, 
 not4b :- n is Node, m is MetaEdge, NodeInstanceOf(m.src,n), m.md.high != "*", count({s|s is Node, e is Edge (_,m,n,s)}) > m.md.high.
 not4 :- not4a, not4b.
 not5 :- m is MetaEdge, n is Node, NodeInstanceOf(m.src,n), m.md.low != 0, no{e | e is Edge(_,m,n,_)}.
-not6a :- n is Node, m is MetaEdge, NodeInstanceOf(m.dst,n), count({s|s is Node, e is Edge (_,m,s,n)}) < m.md.low.
-not6b :- n is Node, m is MetaEdge, NodeInstanceOf(m.dst,n), m.md.high != "*", count({s|s is Node, e is Edge (_,m,s,n)}) > m.md.high.
+not6a :- n is Node, m is MetaEdge, NodeInstanceOf(m.dst,n), count({s|s is Node, e is Edge (_,m,s,n)}) < m.ms.low.
+not6b :- n is Node, m is MetaEdge, NodeInstanceOf(m.dst,n), m.ms.high != "*", count({s|s is Node, e is Edge (_,m,s,n)}) > m.ms.high.
 not6 :- not6a, not6b.
-not7 :- m is MetaEdge, n is Node, NodeInstanceOf(m.dst,n), m.md.low != 0, no{e | e is Edge(_,m,_,n)}.
+not7 :- m is MetaEdge, n is Node, NodeInstanceOf(m.dst,n), m.ms.low != 0, no{e | e is Edge(_,m,_,n)}.
 
 conforms no WrongMultiplicity, no not1, no not2, no not3, no not4, no not5, no not6, no not7.
 
