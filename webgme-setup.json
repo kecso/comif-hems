@@ -8,6 +8,10 @@
       "ToGremlin": {
         "src": "src/plugins/ToGremlin",
         "test": "test/plugins/ToGremlin"
+      },
+      "duplicate": {
+        "src": "src/plugins/duplicate",
+        "test": "test/plugins/duplicate"
       }
     },
     "addons": {},
