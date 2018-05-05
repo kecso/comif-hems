@@ -16,15 +16,14 @@ define([
     'text!./meta.ejs',
     'text!./node.ejs',
     'text!./values.ejs'
-], function (
-    PluginConfig,
-    pluginMetadata,
-    PluginBase,
-    ejs,
-    QUERIES,
-    metaTemplate,
-    nodeTemplate,
-    valueTemplate) {
+], function (PluginConfig,
+             pluginMetadata,
+             PluginBase,
+             ejs,
+             QUERIES,
+             metaTemplate,
+             nodeTemplate,
+             valueTemplate) {
     'use strict';
 
     pluginMetadata = JSON.parse(pluginMetadata);
@@ -66,6 +65,7 @@ define([
         // Use self to access core, project, result, logger etc from PluginBase.
         // These are all instantiated at this point.
         var self = this,
+            artifact,
             concept,
             conceptObject,
             nodeObject,
@@ -76,10 +76,10 @@ define([
             parameters = {},
             gremlin = '';
 
-        function collectBases(node){
-            var bases = [];
-            for(metaNode in self.META){
-                if(self.core.isTypeOf(node,self.META[metaNode])){
+        function collectBases(node) {
+            var bases = [], metaNode;
+            for (metaNode in self.META) {
+                if (self.core.isTypeOf(node, self.META[metaNode])) {
                     bases.push(metaNode);
                 }
             }
@@ -146,7 +146,8 @@ define([
 
         gremlin += ejs.render(metaTemplate, parameters);
         self.core.loadSubTree(nodeObject, function (err, nodes) {
-            var values = {string: [], integer: [], float: [], asset: []};
+            var values = {string: [], integer: [], float: [], asset: []},
+                paramNodes = {};
             if (err) {
                 self.result.setSuccess(false);
                 callback(err, self.result);
@@ -207,17 +208,31 @@ define([
                 // parameters.values = values;
                 // gremlin += ejs.render(nodeTemplate, parameters);
                 parameters.bases = collectBases(nodes[i]);
-                nodes[parameters.path] = JSON.parse(JSON.stringify(parameters));
+                // console.log(parameters);
+                paramNodes[parameters.path] = JSON.parse(JSON.stringify(parameters));
             }
             gremlin += ejs.render(valueTemplate, {values: values});
 
-            gremlin += ejs.render(nodeTemplate, {nodes: nodes, values: values});
+            gremlin += ejs.render(nodeTemplate, {nodes: paramNodes, values: values});
 
             gremlin += QUERIES;
 
-            console.log(gremlin);
-            self.result.setSuccess(true);
-            callback(null, self.result);
+            artifact = self.blobClient.createArtifact('MyArtifact');
+
+            artifact.addFiles({'model.groovy': gremlin})
+                .then(function (fileMetadataHashes) {
+                    self.result.addArtifact(fileMetadataHashes[0]);
+                    // and/or save the full artifact and link to it (will be a zip file).
+                    return artifact.save();
+                })
+                .then(function (artifactHash) {
+                    self.result.addArtifact(artifactHash);
+                    self.result.setSuccess(true);
+                    callback(null, self.result);
+                })
+                .catch(function (err) {
+                    callback(err);
+                });
         });
     };
 
