@@ -1,2 +1,14 @@
 [
+  {
+    "id": "FormulaConstraintEditor",
+    "title": "FormulaConstraintEditor",
+    "panel": "panels/FormulaConstraintEditor/FormulaConstraintEditorPanel",
+    "DEBUG_ONLY": false
+  },
+  {
+    "id": "GremlinConstraintEditor",
+    "title": "GremlinConstraintEditor",
+    "panel": "panels/GremlinConstraintEditor/GremlinConstraintEditorPanel",
+    "DEBUG_ONLY": false
+  }
 ]

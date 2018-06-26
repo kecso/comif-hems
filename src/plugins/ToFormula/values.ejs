@@ -4,7 +4,7 @@ function sanitizeString(input){
     input = input.replace(/\n/g, "_nl_");
     return input;
 }
-for(var type in values){
+        for(var type in values){
 for(var i=0;i<values[type].length;i+=1){
 %><%=type%>_<%=i%> is Node("<%-sanitizeString(values[type][i])%>",<%=type%>).
 NodeInheritance(<%=type%>,<%=type%>_<%=i%>).

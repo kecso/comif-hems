@@ -16,6 +16,7 @@ config.seedProjects.basePaths.push(__dirname + '/../node_modules/webgme-bip/src/
 
 config.visualization.panelPaths.push(__dirname + '/../node_modules/webgme-bip/src/visualizers/panels');
 config.visualization.panelPaths.push(__dirname + '/../node_modules/webgme-bip-editors/src/visualizers/panels');
+config.visualization.panelPaths.push(__dirname + '/../src/visualizers/panels');
 
 
 
