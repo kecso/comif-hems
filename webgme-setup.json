@@ -12,6 +12,10 @@
       "duplicate": {
         "src": "src/plugins/duplicate",
         "test": "test/plugins/duplicate"
+      },
+      "FormulaConformanceCheck": {
+        "src": "src/plugins/FormulaConformanceCheck",
+        "test": "test/plugins/FormulaConformanceCheck"
       }
     },
     "addons": {},

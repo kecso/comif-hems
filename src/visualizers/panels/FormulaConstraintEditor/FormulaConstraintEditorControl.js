@@ -7,11 +7,13 @@ define([
     'q',
     'common/util/ejs',
     'js/Constants',
+    'js/Loader/LoaderCircles',
     'text!comif-hems/domain.txt',
     'comif-hems/clientUtils'
 ], function (Q,
              ejs,
              CONSTANTS,
+             LoaderCircle,
              domainTxt,
              utils) {
 
@@ -39,6 +41,8 @@ define([
 
         this._initWidgetEventHandlers();
 
+        this._loader = new LoaderCircle({containerElement: this._widget._el});
+        this._loader.setSize(100);
         this._logger.debug('ctor finished');
     };
 
@@ -169,6 +173,26 @@ define([
             this._client.setAttribute(this._currentNodeId, '_formula_constraints', changedSegments.user);
         }
     };
+
+    FormulaConstraintEditorControl.prototype._checkConformance = function () {
+        var self = this,
+            context;
+
+        self._loader.start();
+        context = self._client.getCurrentPluginContext('FormulaConformanceCheck');
+        context.pluginConfig = {formulaProjectFile: self._widget.getDocument()};
+        self._client.runServerPlugin('FormulaConformanceCheck', context, function (err, pluginResult) {
+            self._loader.stop();
+            if (err) {
+                self._client.notifyUser({message: 'Conformance checking failed: ' + err, severity: 'error'});
+            } else if (pluginResult.success) {
+                self._client.notifyUser('Your model is well-formed!');
+            } else {
+                self._client.notifyUser('Your model is not conformant [' + pluginResult.messages[0].message + ']');
+            }
+        });
+    };
+
     /* * * * * * * * Visualizer life cycle callbacks * * * * * * * */
     FormulaConstraintEditorControl.prototype.destroy = function () {
         this._detachClientEventListeners();
@@ -249,7 +273,7 @@ define([
             title: 'Check model conformance',
             icon: 'glyphicon glyphicon-eye-open',
             clickFn: function (/*data*/) {
-                console.log('we need to call the formula checking here');
+                self._checkConformance();
             }
         });
         this._toolbarItems.push(this.$btnCheck);

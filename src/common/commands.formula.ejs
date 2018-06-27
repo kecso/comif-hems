@@ -1,0 +1,10 @@
+<%
+function convertName(name) {
+    name = name.replace(/ /g, "_");
+    name = name.replace(/\./g, "__");
+    name = name.replace(/\//g, "_");
+    return name;
+}
+
+%>////! qr <%=convertName(name)%> WebGME.conforms
+////! tr 0

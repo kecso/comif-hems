@@ -1,0 +1,23 @@
+{
+  "id": "FormulaConformanceCheck",
+  "name": "FormulaConformanceCheck",
+  "version": "0.1.0",
+  "description": "",
+  "icon": {
+    "class": "glyphicon glyphicon-cog",
+    "src": ""
+  },
+  "disableServerSideExecution": false,
+  "disableBrowserSideExecution": true,
+  "writeAccessRequired": false,
+  "configStructure": [
+    {
+      "name": "formulaProjectFile",
+      "displayName": "Complete Formula Project",
+      "description": "complete project in formula to be checked for conformance",
+      "value": "",
+      "valueType": "string",
+      "readOnly": false
+    }
+  ]
+}

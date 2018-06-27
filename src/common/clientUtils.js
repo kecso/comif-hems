@@ -8,8 +8,9 @@ define([
     'ejs',
     'text!./meta.formula.ejs',
     'text!./node.formula.ejs',
-    'text!./values.formula.ejs'
-], function (ejs, metaTemplate, nodeTemplate, valueTemplate) {
+    'text!./values.formula.ejs',
+    'text!./commands.formula.ejs'
+], function (ejs, metaTemplate, nodeTemplate, valueTemplate, commandsTemplate) {
     'use strict';
 
     function getMetaData(core, root, name) {
@@ -176,8 +177,13 @@ define([
         });
     }
 
+    function getFormulaCommands(name) {
+        return ejs.render(commandsTemplate, {name: name});
+    }
+
     return {
         getMetaData: getMetaData,
-        getNodeData: getNodeData
+        getNodeData: getNodeData,
+        getFormulaCommands: getFormulaCommands
     }
 });
