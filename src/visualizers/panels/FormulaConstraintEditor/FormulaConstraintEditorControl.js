@@ -7,13 +7,13 @@ define([
     'q',
     'common/util/ejs',
     'js/Constants',
-    'text!comif-hems/domain.txt'
-], function (
-    Q,
-    ejs,
-    CONSTANTS,
-    domainTxt
-) {
+    'text!comif-hems/domain.txt',
+    'comif-hems/clientUtils'
+], function (Q,
+             ejs,
+             CONSTANTS,
+             domainTxt,
+             utils) {
 
     'use strict';
 
@@ -39,7 +39,6 @@ define([
 
         this._initWidgetEventHandlers();
 
-        console.log(domainTxt);
         this._logger.debug('ctor finished');
     };
 
@@ -69,7 +68,6 @@ define([
         }
     };
 
-
     /* * * * * * * * Node Event Handling * * * * * * * */
     FormulaConstraintEditorControl.prototype._eventCallback = function (events) {
         var self = this,
@@ -81,7 +79,10 @@ define([
         this._buildSegmentInfo(this._currentNodeId)
             .then(function (segmentedDocument) {
                 self._widget.setSegmentedDocument(segmentedDocument);
-            });
+            })
+            .catch(function (err) {
+                self._logger.error(err);
+            })
         this._logger.debug('_eventCallback \'' + events.length + '\' items - DONE');
     };
 
@@ -122,28 +123,44 @@ define([
             return deferred.promise;
         }
 
-        segmentedDocument.composition = ['domainStart', 'user', 'domainEnd', 'modelMeta', 'modelNodes'];
-        segmentedDocument.segments.domainStart = {
-            value: 'Here are the beggining of the domain\n...\n...\nand comes the user part\n...',
-            options: {readonly: true}
-        };
-        segmentedDocument.segments.user = {
-            value: self._client.getNode(self._currentNodeId).getAttribute('_formula_constraints') || '',
-            options: {readonly: false}
-        };
-        segmentedDocument.segments.domainEnd = {
-            value: '// end of the WebGME domain definition\n}\n\n',
-            options: {readonly: true}
-        };
-        segmentedDocument.segments.modelMeta = {
-            value: 'model watta of WebGME\n{\n...\n...',
-            options: {readonly: true}
-        };
-        segmentedDocument.segments.modelNodes = {
-            value: 'and the nodes\n...\n...\n}\n\n',
-            options: {readonly: true}
-        };
-        deferred.resolve(segmentedDocument);
+        self._client.getCoreInstance({}, function (err, coreInstance) {
+            if (err) {
+                deferred.reject(err);
+                return;
+            }
+
+            segmentedDocument.composition = ['domainStart', 'user', 'domainEnd', 'modelMeta', 'modelNodes'];
+            segmentedDocument.segments.domainStart = {
+                value: domainTxt,
+                options: {readonly: true}
+            };
+
+            segmentedDocument.segments.user = {
+                value: self._client.getNode(self._currentNodeId).getAttribute('_formula_constraints') || '',
+                options: {readonly: false}
+            };
+            segmentedDocument.segments.domainEnd = {
+                value: ' //// End of user defined extra constraints\n}\n\n',
+                options: {readonly: true}
+            };
+            segmentedDocument.segments.modelMeta = {
+                value: utils.getMetaData(coreInstance.core, coreInstance.rootNode, node.getAttribute('name')),
+                options: {readonly: true}
+            };
+            utils.getNodeData(coreInstance.core, coreInstance.rootNode, self._currentNodeId,
+                node.getAttribute('name'), function (err, nodeData) {
+                    if (err) {
+                        deferred.reject(err);
+                    } else {
+                        segmentedDocument.segments.modelNodes = {
+                            value: nodeData,
+                            options: {readonly: true}
+                        };
+                    }
+                    deferred.resolve(segmentedDocument);
+                });
+        });
+
         return deferred.promise;
     };
 
@@ -236,7 +253,6 @@ define([
             }
         });
         this._toolbarItems.push(this.$btnCheck);
-
 
         this._toolbarInitialized = true;
     };
