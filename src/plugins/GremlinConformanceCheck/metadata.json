@@ -1,0 +1,23 @@
+{
+  "id": "GremlinConformanceCheck",
+  "name": "GremlinConformanceCheck",
+  "version": "0.1.0",
+  "description": "",
+  "icon": {
+    "class": "glyphicon glyphicon-cog",
+    "src": ""
+  },
+  "disableServerSideExecution": false,
+  "disableBrowserSideExecution": true,
+  "writeAccessRequired": false,
+  "configStructure": [
+    {
+      "name": "gremlinProjectFile",
+      "displayName": "Complete Gremlin Script",
+      "description": "complete script in groovy to be checked for conformance",
+      "value": "",
+      "valueType": "string",
+      "readOnly": false
+    }
+  ]
+}

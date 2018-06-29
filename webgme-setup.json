@@ -16,6 +16,10 @@
       "FormulaConformanceCheck": {
         "src": "src/plugins/FormulaConformanceCheck",
         "test": "test/plugins/FormulaConformanceCheck"
+      },
+      "GremlinConformanceCheck": {
+        "src": "src/plugins/GremlinConformanceCheck",
+        "test": "test/plugins/GremlinConformanceCheck"
       }
     },
     "addons": {},

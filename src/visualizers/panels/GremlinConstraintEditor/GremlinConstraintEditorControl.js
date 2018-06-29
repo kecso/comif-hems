@@ -6,10 +6,12 @@
 define([
     'q',
     'js/Constants',
+    'js/Loader/LoaderCircles',
     'text!comif-hems/domain.txt',
     'comif-hems/clientUtils'
 ], function (Q,
              CONSTANTS,
+             LoaderCircle,
              domainTxt,
              utils) {
 
@@ -37,6 +39,8 @@ define([
 
         this._initWidgetEventHandlers();
 
+        this._loader = new LoaderCircle({containerElement: this._widget._el});
+        this._loader.setSize(100);
         this._logger.debug('ctor finished');
     };
 
@@ -127,18 +131,28 @@ define([
                 return;
             }
 
-            segmentedDocument.composition = ['fixed', 'user'];
-            segmentedDocument.segments.fixed = {
-                value: 'here comes all the line we need...\n\n//and now the user part',
-                options: {readonly: true}
-            };
+            utils.getGremlinData(coreInstance.core, coreInstance.rootNode, nodeId, node.getAttribute('name'),
+                function (err, gremlin) {
+                    if (err) {
+                        deferred.reject(err);
+                        return;
+                    }
 
-            segmentedDocument.segments.user = {
-                value: self._client.getNode(self._currentNodeId).getAttribute('_gremlin_constraints') || '',
-                options: {readonly: false}
-            };
+                    segmentedDocument.composition = ['fixed', 'user'];
+                    segmentedDocument.segments.fixed = {
+                        value: gremlin,
+                        options: {readonly: false}
+                    };
 
-            deferred.resolve(segmentedDocument);
+                    segmentedDocument.segments.user = {
+                        value: self._client.getNode(self._currentNodeId).getAttribute('_gremlin_constraints') || '',
+                        options: {readonly: false}
+                    };
+
+                    deferred.resolve(segmentedDocument);
+
+                });
+
         });
 
         return deferred.promise;
@@ -148,6 +162,25 @@ define([
         if (changedSegments.hasOwnProperty('user')) {
             this._client.setAttribute(this._currentNodeId, '_gremlin_constraints', changedSegments.user);
         }
+    };
+
+    GremlinConstraintEditorControl.prototype._checkConformance = function () {
+        var self = this,
+            context;
+
+        self._loader.start();
+        context = self._client.getCurrentPluginContext('GremlinConformanceCheck');
+        context.pluginConfig = {formulaProjectFile: self._widget.getDocument()};
+        self._client.runServerPlugin('GremlinConformanceCheck', context, function (err, pluginResult) {
+            self._loader.stop();
+            if (err) {
+                self._client.notifyUser({message: 'Conformance checking failed: ' + err, severity: 'error'});
+            } else if (pluginResult.success) {
+                self._client.notifyUser('Your model is well-formed!');
+            } else {
+                self._client.notifyUser('Your model is non conformant!');
+            }
+        });
     };
     /* * * * * * * * Visualizer life cycle callbacks * * * * * * * */
     GremlinConstraintEditorControl.prototype.destroy = function () {
@@ -229,7 +262,7 @@ define([
             title: 'Check model conformance',
             icon: 'glyphicon glyphicon-eye-open',
             clickFn: function (/*data*/) {
-                console.log('we need to call the formula checking here');
+                self._checkConformance();
             }
         });
         this._toolbarItems.push(this.$btnCheck);
