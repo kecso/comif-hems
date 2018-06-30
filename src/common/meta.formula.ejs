@@ -1,0 +1,52 @@
+<%
+function convertName(name) {
+    name = name.replace(/ /g, "_");
+    name = name.replace(/\./g, "__");
+    name = name.replace(/\//g, "_");
+    return name;
+}
+
+var i,j,key,conceptName;
+%>
+model <%=convertName(name)%> of WebGME
+{
+string is MetaNode("string").
+integer is MetaNode("integer").
+float is MetaNode("float").
+boolean is MetaNode("boolean").
+asset is MetaNode("asset").
+
+exactlyOne is Multiplicity(1,1).
+atMostOne is Multiplicity(0,1).
+atLeastOne is Multiplicity(1,"*").
+anyNumber is Multiplicity(0,"*").
+
+<%
+for(i=0;i<concepts.length;i+=1){
+    conceptName = concepts[i].name;
+%><%=convertName(conceptName)%> is MetaNode("<%=convertName(conceptName)%>").
+<%
+for(key in concepts[i].attr){
+%><%=convertName(conceptName+'_attr_'+key)%> is MetaEdge("<%=convertName(conceptName+'_attr_'+key)%>",<%=convertName(conceptName)%>,<%=concepts[i].attr[key]%>,anyNumber,atMostOne).
+<%
+}
+        for(key in concepts[i].ptr){
+%><%=convertName(conceptName+'_ptr_'+key+'_target')%> is MetaNode("<%=convertName(conceptName+'_ptr_'+key+'_target')%>").
+<%=convertName(conceptName+'_ptr_'+key)%> is MetaEdge("<%=convertName(key)%>",<%=convertName(conceptName)%>,<%=convertName(conceptName+'_ptr_'+key+'_target')%>,anyNumber,atMostOne).
+<%
+for(j=0;j<concepts[i].ptr[key].length;j+=1){
+%>NodeInheritance(<%=convertName(conceptName+'_ptr_'+key+'_target')%>,<%=convertName(concepts[i].ptr[key][j])%>).
+<%
+}
+}
+        for(key in concepts[i].set){
+%><%=convertName(conceptName+'_set_'+key+'_md')%> is Multiplicity(<%=concepts[i].set[key].md.min === -1 ? 0 : concepts[i].set[key].md.min%>,<%if(concepts[i].set[key].md.max === -1){%>"*"<%} else {%><%=concepts[i].set[key].md.max%><%}%>).
+<%=convertName(conceptName+'_set_'+key)%> is MetaEdge("<%=convertName(key)%>",<%=convertName(conceptName)%>,<%=convertName(concepts[i].set[key].target)%>,anyNumber,<%=convertName(conceptName+'_set_'+key+'_md')%>).
+<%
+}
+for(j=0;j<concepts[i].bases.length;j+=1){
+%>NodeInheritance(<%=convertName(concepts[i].bases[j])%>,<%=convertName(conceptName)%>).
+<%
+}
+}
+%>

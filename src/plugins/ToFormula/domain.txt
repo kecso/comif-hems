@@ -29,6 +29,3 @@ conforms no WrongMultiplicity, no not1, no not2, no not3, no not4, no not5, no n
 
 
  //// User defined extra constraints: (conforms has to be updated properly to work)
-
-
-}

@@ -1,0 +1,36 @@
+<%
+function convertName(name) {
+    name = name.replace(/ /g, "_");
+    name = name.replace(/\./g, "__");
+    name = name.replace(/\//g, "_");
+    return name;
+}
+var name, member, i, path;
+
+// we need to define the nodes first
+        for(path in nodes){
+%>n_<%=convertName(path)%> = graph.addVertex('class','Node','name','<%=convertName(path)%>');
+<%
+for(i=0;i<nodes[path].bases.length;i+=1){
+%>n_<%=convertName(path)%>.addEdge('type',c_<%=convertName(nodes[path].bases[i])%>);
+<%
+}
+        for(name in nodes[path].attr){
+%>n_<%=convertName(path)%>_attr_<%=convertName(name)%> = graph.addVertex('class','Edge','name','<%=name%>');
+n_<%=convertName(path)%>_attr_<%=convertName(name)%>.addEdge('type',c_<%=convertName(nodes[path].attr[name].owner+'_attr_'+name)%>);
+n_<%=convertName(path)%>_attr_<%=convertName(name)%>.addEdge('src',n_<%=convertName(path)%>);
+n_<%=convertName(path)%>_attr_<%=convertName(name)%>.addEdge('dst',<%=nodes[path].attr[name].type%>_<%=nodes[path].attr[name].valueIndex%>);
+<%
+}
+}
+//then the relations can follow
+        for(path in nodes){
+        for(name in nodes[path].ptr){
+%>n_<%=convertName(path)%>_ptr_<%=convertName(name)%> = graph.addVertex('class','Edge','name','<%=name%>');
+n_<%=convertName(path)%>_ptr_<%=convertName(name)%>.addEdge('type',c_<%=convertName(nodes[path].ptr[name].owner+'_ptr_'+name)%>);
+n_<%=convertName(path)%>_ptr_<%=convertName(name)%>.addEdge('src',n_<%=convertName(path)%>);
+n_<%=convertName(path)%>_ptr_<%=convertName(name)%>.addEdge('dst',n_<%=convertName(nodes[path].ptr[name].target)%>);
+<%
+}
+}
+%>

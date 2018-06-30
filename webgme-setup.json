@@ -12,6 +12,14 @@
       "duplicate": {
         "src": "src/plugins/duplicate",
         "test": "test/plugins/duplicate"
+      },
+      "FormulaConformanceCheck": {
+        "src": "src/plugins/FormulaConformanceCheck",
+        "test": "test/plugins/FormulaConformanceCheck"
+      },
+      "GremlinConformanceCheck": {
+        "src": "src/plugins/GremlinConformanceCheck",
+        "test": "test/plugins/GremlinConformanceCheck"
       }
     },
     "addons": {},
@@ -19,7 +27,22 @@
     "layouts": {},
     "decorators": {},
     "routers": {},
-    "visualizers": {}
+    "visualizers": {
+      "FormulaConstraintEditor": {
+        "src": "panels/FormulaConstraintEditor/FormulaConstraintEditorPanel",
+        "title": "FormulaConstraintEditor",
+        "panel": "src/visualizers/panels/FormulaConstraintEditor",
+        "secondary": false,
+        "widget": "src/visualizers/widgets/FormulaConstraintEditor"
+      },
+      "GremlinConstraintEditor": {
+        "src": "panels/GremlinConstraintEditor/GremlinConstraintEditorPanel",
+        "title": "GremlinConstraintEditor",
+        "panel": "src/visualizers/panels/GremlinConstraintEditor",
+        "secondary": false,
+        "widget": "src/visualizers/widgets/GremlinConstraintEditor"
+      }
+    }
   },
   "dependencies": {
     "plugins": {

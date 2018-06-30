@@ -1,0 +1,13 @@
+wrongMultiplicity = g.E().has('max').match(__.as('e').properties('max').value().as('max'),__.as('e').properties('min').value().as('min').where('min',gt('max'))).hasNext();
+not1 = g.V().has('class','Node').not(out('type').has('class','MetaNode')).hasNext();
+not2 = g.V().has('class','Edge').not(match(__.as('s').out('type').out('src').as('a'),__.as('s').out('src').out('type').as('b').where('b',eq('a')))).hasNext();
+not3 = g.V().has('class','Edge').not(match(__.as('s').out('type').out('src').as('a'),__.as('s').out('src').out('type').as('b').where('b',eq('a')))).hasNext();
+not4a = g.V().has('class','MetaEdge').match(__.as('m').in('type').groupCount().by(out('src')).order(local).by(values,incr).select(values).limit(local,1).as('actual'),__.as('m').outE('src').properties('min').value().as('allowed').where('allowed',gt('actual'))).hasNext();
+not4b = g.V().has('class','MetaEdge').where(outE('src').has('max')).match(__.as('m').in('type').groupCount().by(out('src')).order(local).by(values,decr).select(values).limit(local,1).as('actual'),__.as('m').outE('src').properties('max').value().as('allowed').where('allowed',gt('actual'))).hasNext();
+not5 = g.V().has('class','MetaEdge').as('me').outE('src').has('min',gt(0)).inV().in('type').has('class','Node').not(inE('src').outV().out('type').as('me2').where('me',eq('me2'))).hasNext();
+not6a = g.V().has('class','MetaEdge').match(__.as('m').in('type').groupCount().by(out('dst')).order(local).by(values,incr).select(values).limit(local,1).as('actual'),__.as('m').outE('dst').properties('min').value().as('allowed').where('allowed',gt('actual'))).hasNext();
+not6b = g.V().has('class','MetaEdge').where(outE('dst').has('max')).match(__.as('m').in('type').groupCount().by(out('dst')).order(local).by(values,decr).select(values).limit(local,1).as('actual'),__.as('m').outE('dst').properties('max').value().as('allowed').where('allowed',gt('actual'))).hasNext();
+not7 = g.V().has('class','MetaEdge').as('me').outE('dst').has('min',gt(0)).inV().in('type').has('class','Node').not(inE('dst').outV().out('type').as('me2').where('me',eq('me2'))).hasNext();
+
+
+conforms = wrongMultiplicity || not1 || not2 || not3 || not4a || not4b || not5 || not6a || not6b || not7;

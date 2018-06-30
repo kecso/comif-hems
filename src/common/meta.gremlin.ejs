@@ -1,0 +1,67 @@
+<%
+function convertName(name) {
+    name = name.replace(/ /g, "_");
+    name = name.replace(/\./g, "__");
+    name = name.replace(/\//g, "_");
+    return name;
+}
+function max(a,b){
+    if(a > b)
+        return a;
+    return b;
+}
+var i,j,key,conceptName;
+%>
+graph = TinkerGraph.open();
+g = graph.traversal();
+type_string = graph.addVertex('class','MetaNode','name','string');
+type_integer = graph.addVertex('class','MetaNode','name','integer');
+type_float = graph.addVertex('class','MetaNode','name','float');
+type_boolean = graph.addVertex('class','MetaNode','name','boolean');
+type_asset = graph.addVertex('class','MetaNode','name','asset');
+
+<%
+for(i=0;i<concepts.length;i+=1){
+    conceptName = 'c_'+concepts[i].name;
+%><%=convertName(conceptName)%> = graph.addVertex('class','MetaNode','name','<%=convertName(conceptName)%>');
+<%
+for(key in concepts[i].attr){
+%><%=convertName(conceptName+'_attr_'+key)%> = graph.addVertex('class','MetaEdge','name','<%=convertName(conceptName+'_attr_'+key)%>');
+<%
+}
+        for(key in concepts[i].ptr){
+%><%=convertName(conceptName+'_ptr_'+key)%> = graph.addVertex('class','MetaEdge','name','<%=convertName(conceptName+'_ptr_'+key)%>');
+<%
+}
+        for(key in concepts[i].set){
+%><%=convertName(conceptName+'_set_'+key)%> = graph.addVertex('class','MetaEdge','name','<%=convertName(conceptName+'_set_'+key)%>');
+<%
+}
+}
+for(i=0;i<concepts.length;i+=1){
+    conceptName = 'c_'+concepts[i].name;
+for(j=0;j<concepts[i].bases.length;j+=1){
+%><%=convertName(conceptName)%>.addEdge('type',c_<%=convertName(concepts[i].bases[j])%>);
+<%
+}
+        for(key in concepts[i].attr){
+%><%=convertName(conceptName+'_attr_'+key)%>.addEdge('src',<%=convertName(conceptName)%>,'min',0);
+<%=convertName(conceptName+'_attr_'+key)%>.addEdge('dst',type_<%=concepts[i].attr[key]%>,'min',1,'max',1);
+<%
+}
+        for(key in concepts[i].ptr){
+%><%=convertName(conceptName+'_ptr_'+key)%>.addEdge('src',<%=convertName(conceptName)%>,'min',0);
+<%=convertName(conceptName+'_ptr_'+key)%>.addEdge('dst',c_<%=convertName(concepts[i].ptr[key])%>,'min',1,'max',1);
+<%
+}
+        for(key in concepts[i].set){
+%><%=convertName(conceptName+'_set_'+key)%>.addEdge('src',<%=convertName(conceptName)%>,'min',0);<%
+    var maxStr = '';
+    if(concepts[i].set[key].md.max > -1){
+        maxStr = ',\'max\','+concepts[i].set[key].md.max;
+    }
+%><%=convertName(conceptName+'_set_'+key)%>.addEdge('dst',c_<%=convertName(concepts[i].set[key].target)%>,'min',<%=max(0,concepts[i].set[key].md.min)%><%=maxStr%>);
+<%
+}
+}
+%>
