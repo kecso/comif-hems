@@ -141,7 +141,7 @@ define([
                     segmentedDocument.composition = ['fixed', 'user'];
                     segmentedDocument.segments.fixed = {
                         value: gremlin,
-                        options: {readonly: false}
+                        options: {readonly: true}
                     };
 
                     segmentedDocument.segments.user = {

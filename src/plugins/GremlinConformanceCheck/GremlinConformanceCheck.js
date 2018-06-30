@@ -61,14 +61,14 @@ define([
         // Use self to access core, project, result, logger etc from PluginBase.
         // These are all instantiated at this point.
         var self = this,
+            GREMLINDIR = 'C:\\gremlin-console\\',
             exec = require('child_process').exec,
             fs = require('fs'),
             path = require('path'),
             filename = self._getRandomFileName(),
-            filePath = path.resolve(process.cwd(), filename + '.out');
+            filePath = path.resolve(process.cwd(), filename);
 
-        console.log(process.cwd());
-        self._createProjectFile(filePath, function (err, projectFile) {
+        self._createProjectFile(filename + '.out', function (err, projectFile) {
             if (err) {
                 self.logger.error(err);
                 self.result.setSuccess(false);
@@ -78,12 +78,13 @@ define([
 
             fs.writeFileSync(filename + '.groovy', projectFile, 'utf8');
 
-            exec('gremlin -e ' + filePath + '.groovy', {}, function (err, stdout, stderr) {
-                fs.unlinkSync(filename + '.groovy');
+            exec('gremlin.bat ' + filePath + '.groovy', {}, function (err, stdout, stderr) {
+                fs.unlinkSync(filePath + '.groovy');
                 var result = false;
                 try {
-                    result = fs.readFileSync(filename + '.out', 'utf8').indexOf('true') !== -1;
-                    fs.unlinkSync(filename + '.out');
+                    var file = fs.readFileSync(GREMLINDIR + filename + '.out', 'utf8');
+                    result = file.indexOf('true') !== -1;
+                    fs.unlinkSync(GREMLINDIR + filename + '.out');
                 } catch (e) {
                     result = false;
                 }
