@@ -81,7 +81,7 @@ define([
             p2n = {},
             formulaLiveRunTxt = '',
             parameters = {},
-            formula = DOMAIN;
+            formula = DOMAIN + '\n}\n\n';
 
 
         nodeObject = self.activeNode;
